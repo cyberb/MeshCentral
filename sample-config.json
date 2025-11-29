@@ -10,7 +10,9 @@
     "_port": 443,
     "_aliasPort": 443,
     "_redirPort": 80,
-    "_redirAliasPort": 80
+    "_redirAliasPort": 80,
+    "_unixSocket": "/run/meshcentral/meshcentral.sock",
+    "_unixSocketMode": "660"
   },
   "domains": {
     "": {

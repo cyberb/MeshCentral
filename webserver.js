@@ -7712,8 +7712,11 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
                 });
             }
 
-            // Start server on a free port.
-            CheckListenPort(obj.args.port, obj.args.portbind, StartWebServer);
+            if (obj.args.unixsocket != null) {
+                StartWebServerUnixSocket(obj.args.unixsocket, obj.args.unixsocketmode);
+            } else {
+                CheckListenPort(obj.args.port, obj.args.portbind, StartWebServer);
+            }
 
             // Start on a second agent-only alternative port if needed.
             if (obj.args.agentport) { CheckListenPort(obj.args.agentport, obj.args.agentportbind, StartAltWebServer); }
@@ -8785,6 +8788,23 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
         obj.tcpServer = s.listen(port, addr, function () { s.close(function () { if (func) { func(port, addr); } }); }).on('error', function (err) {
             if (args.exactports) { console.error('ERROR: MeshCentral HTTPS server port ' + port + ' not available.'); process.exit(); }
             else { if (port < 65535) { CheckListenPort(port + 1, addr, func); } else { if (func) { func(0); } } }
+        });
+    }
+
+    function StartWebServerUnixSocket(socket, mode) {
+        if (obj.fs.existsSync(socket)) {
+            obj.fs.unlinkSync(socket);
+        }
+        const server = (obj.tlsServer != null) ? obj.tlsServer : obj.app;
+        obj.tcpServer = server.listen(socket, function () {
+            if (obj.tlsServer != null) {
+                console.log('MeshCentral HTTPS server listening on Unix socket ' + socket + '.');
+                obj.parent.updateServerState('https-socket', socket);
+            } else {
+                console.log('MeshCentral HTTP server listening on Unix socket ' + socket + '.');
+                obj.parent.updateServerState('http-socket', socket);
+            }
+            obj.fs.chmodSync(socket, parseInt(mode, 8));
         });
     }
 
