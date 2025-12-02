@@ -16,6 +16,15 @@
 
 const common = require('./common.js');
 
+function getNodeExecPath() {
+    const env = process.env || {};
+    const override = env.MESHCENTRAL_NODE_PATH;
+    if ((typeof override === 'string') && (override.length > 0)) {
+        return override;
+    }
+    return process.argv[0];
+}
+
 // If app metrics is available
 if (process.argv[2] == '--launch') { try { require('appmetrics-dash').monitor({ url: '/', title: 'MeshCentral', port: 88, host: '127.0.0.1' }); } catch (ex) { } }
 
@@ -305,8 +314,8 @@ function CreateMeshCentralServer(config, args) {
         // Setup the Node+NPM path if possible, this makes it possible to update the server even if NodeJS and NPM are not in default paths.
         if (obj.args.npmpath == null) {
             try {
-                var nodepath = process.argv[0];
-                var npmpath = obj.path.join(obj.path.dirname(process.argv[0]), 'npm');
+                var nodepath = getNodeExecPath();
+                var npmpath = obj.path.join(obj.path.dirname(nodepath), 'npm');
                 if (obj.fs.existsSync(nodepath) && obj.fs.existsSync(npmpath)) {
                     if (nodepath.indexOf(' ') >= 0) { nodepath = '"' + nodepath + '"'; }
                     if (npmpath.indexOf(' ') >= 0) { npmpath = '"' + npmpath + '"'; }
@@ -588,7 +597,7 @@ function CreateMeshCentralServer(config, args) {
         try { if (process.traceDeprecation === true) { startArgs.unshift('--trace-deprecation'); } } catch (ex) { }
         try { if (process.traceProcessWarnings === true) { startArgs.unshift('--trace-warnings'); } } catch (ex) { }
         if (startArgs[0] != "--disable-proto=delete") startArgs.unshift("--disable-proto=delete")
-        childProcess = child_process.execFile(process.argv[0], startArgs, { maxBuffer: Infinity, cwd: obj.parentpath }, function (error, stdout, stderr) {
+        childProcess = child_process.execFile(getNodeExecPath(), startArgs, { maxBuffer: Infinity, cwd: obj.parentpath }, function (error, stdout, stderr) {
             if (childProcess.xrestart == 1) {
                 setTimeout(function () { obj.launchChildServer(startArgs); }, 500); // This is an expected restart.
             } else if (childProcess.xrestart == 2) {
@@ -4248,8 +4257,8 @@ function mainStart() {
         // Setup the NPM path
         if (args.npmpath == null) {
             try {
-                var xnodepath = process.argv[0];
-                var xnpmpath = require('path').join(require('path').dirname(process.argv[0]), 'npm');
+                var xnodepath = getNodeExecPath();
+                var xnpmpath = require('path').join(require('path').dirname(xnodepath), 'npm');
                 if (require('fs').existsSync(xnodepath) && require('fs').existsSync(xnpmpath)) {
                     if (xnodepath.indexOf(' ') >= 0) { xnodepath = '"' + xnodepath + '"'; }
                     if (xnpmpath.indexOf(' ') >= 0) { xnpmpath = '"' + xnpmpath + '"'; }
