@@ -6528,9 +6528,10 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
     function serverStart() {
         // Start the server, only after users and meshes are loaded from the database.
         if (obj.args.tlsoffload) {
-            // Setup the HTTP server without TLS
+            console.log('Setup the HTTP server without TLS');
             obj.expressWs = require('express-ws')(obj.app, null, { wsOptions: { perMessageDeflate: (args.wscompression === true) } });
         } else {
+            console.log('Setup the HTTP server with TLS, use only TLS 1.2 and higher with perfect forward secrecy (PFS).');
             var ciphers = [
                 'TLS_AES_256_GCM_SHA384',
                 'TLS_AES_128_GCM_SHA256',
@@ -6569,7 +6570,6 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
                 }
             }
 
-            // Setup the HTTP server with TLS, use only TLS 1.2 and higher with perfect forward secrecy (PFS).
             //const tlsOptions = { cert: obj.certificates.web.cert, key: obj.certificates.web.key, ca: obj.certificates.web.ca, rejectUnauthorized: true, ciphers: "HIGH:!aNULL:!eNULL:!EXPORT:!RSA:!DES:!RC4:!MD5:!PSK:!SRP:!CAMELLIA", secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3 | constants.SSL_OP_NO_COMPRESSION | constants.SSL_OP_CIPHER_SERVER_PREFERENCE | constants.SSL_OP_NO_TLSv1 | constants.SSL_OP_NO_TLSv1_1 }; // This does not work with TLS 1.3
             const tlsOptions = { cert: obj.certificates.web.cert, key: obj.certificates.web.key, ca: obj.certificates.web.ca, rejectUnauthorized: true, ciphers: ciphers, secureOptions: constants.SSL_OP_NO_SSLv2 | constants.SSL_OP_NO_SSLv3 | constants.SSL_OP_NO_COMPRESSION | constants.SSL_OP_CIPHER_SERVER_PREFERENCE | constants.SSL_OP_NO_TLSv1 | constants.SSL_OP_NO_TLSv1_1 };
             if (obj.tlsSniCredentials != null) { tlsOptions.SNICallback = TlsSniCallback; } // We have multiple web server certificate used depending on the domain name
