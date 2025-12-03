@@ -6527,6 +6527,7 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
     // Starts the HTTPS server, this should be called after the user/mesh tables are loaded
     function serverStart() {
         // Start the server, only after users and meshes are loaded from the database.
+        console.log('tls offload: ' + obj.args.tlsoffload);
         if (obj.args.tlsoffload) {
             console.log('Setup the HTTP server without TLS');
             obj.expressWs = require('express-ws')(obj.app, null, { wsOptions: { perMessageDeflate: (args.wscompression === true) } });
