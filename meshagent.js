@@ -1,4 +1,4 @@
-/**
+
 * @description MeshCentral MeshAgent communication module
 * @author Ylian Saint-Hilaire & Bryan Roe
 * @copyright Intel Corporation 2018-2022
@@ -2041,7 +2041,7 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
 
     // Update the mesh agent tab in the database
     function ChangeAgentTag(tag) {
-        parent.parent.debug('agent', ("ChangeAgentTag");
+        parent.parent.debug('agent', "ChangeAgentTag");
         if ((obj.agentInfo == null) || (obj.agentInfo.capabilities & 0x40)) return;
         if ((tag != null) && (tag.length == 0)) { tag = null; }
 
