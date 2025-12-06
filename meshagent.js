@@ -1,4 +1,4 @@
-
+/**
 * @description MeshCentral MeshAgent communication module
 * @author Ylian Saint-Hilaire & Bryan Roe
 * @copyright Intel Corporation 2018-2022
