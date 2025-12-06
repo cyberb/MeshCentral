@@ -19,10 +19,12 @@ const common = require('./common.js');
 function getNodeExecPath() {
     const env = process.env || {};
     const override = env.MESHCENTRAL_NODE_PATH;
+    let bin = process.argv[0];
     if ((typeof override === 'string') && (override.length > 0)) {
-        return override;
+        bin = override;
     }
-    return process.argv[0];
+    console.log("node exec path: " + bin)
+    return bin;
 }
 
 // If app metrics is available
