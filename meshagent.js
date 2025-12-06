@@ -149,6 +149,7 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
 
     // When data is received from the mesh agent web socket
     ws.on('message', function (msg) {
+        console.log('message: ' + msg);
         dataAccounting();
         if (msg.length < 2) return;
         if (typeof msg == 'object') { msg = msg.toString('binary'); } // TODO: Could change this entire method to use Buffer instead of binary string
@@ -431,7 +432,7 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
                 ChangeAgentTag(tag);
             }
         } else if (obj.authenticated < 2) { // We are not authenticated
-            // Check if this is a un-authenticated JSON
+            console.log('Check if this is a un-authenticated JSON');
             if (msg.charCodeAt(0) == 123) {
                 var str = msg.toString('utf8'), command = null;
                 if (str[0] == '{') {
@@ -442,7 +443,7 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
             }
             const cmd = common.ReadShort(msg, 0);
             if (cmd == 1) {
-                // Agent authentication request
+                console.log('Agent authentication request');
                 if ((msg.length != 98) || ((obj.receivedCommands & 1) != 0)) return;
                 obj.receivedCommands += 1; // Agent can't send the same command twice on the same connection ever. Block DOS attack path.
 
@@ -507,7 +508,7 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
                 }
             }
             else if (cmd == 2) {
-                // Agent certificate
+                console.log('Agent certificate');
                 if ((msg.length < 4) || ((obj.receivedCommands & 2) != 0)) return;
                 obj.receivedCommands += 2; // Agent can't send the same command twice on the same connection ever. Block DOS attack path.
 
@@ -529,7 +530,7 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
                 completeAgentConnection();
             }
             else if (cmd == 3) {
-                // Agent meshid
+                console.log('Agent meshid');
                 if ((msg.length < 70) || ((obj.receivedCommands & 4) != 0)) return;
                 obj.receivedCommands += 4; // Agent can't send the same command twice on the same connection ever. Block DOS attack path.
 
@@ -545,15 +546,15 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
                 } else {
                     obj.meshid = Buffer.from(msg.substring(18, 66), 'binary').toString('base64').replace(/\+/g, '@').replace(/\//g, '$'); // New Base64 MeshID
                 }
-                //console.log('MeshID', obj.meshid);
+                console.log('MeshID', obj.meshid);
                 obj.agentInfo.capabilities = common.ReadInt(msg, 66);
                 if (msg.length > 70) {
                     const computerNameLen = common.ReadShort(msg, 70);
                     obj.agentInfo.computerName = Buffer.from(msg.substring(72, 72 + computerNameLen), 'binary').toString('utf8');
-                    //console.log('computerName', msg.length, computerNameLen, obj.agentInfo.computerName);
+                    console.log('computerName', msg.length, computerNameLen, obj.agentInfo.computerName);
                 } else {
                     obj.agentInfo.computerName = '';
-                    //console.log('computerName-none');
+                    console.log('computerName-none');
                 }
 
                 obj.dbMeshKey = 'mesh/' + domain.id + '/' + obj.meshid;
@@ -561,12 +562,12 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
             } else if (cmd == 4) {
                 if ((msg.length < 2) || ((obj.receivedCommands & 8) != 0)) return;
                 obj.receivedCommands += 8; // Agent can't send the same command twice on the same connection ever. Block DOS attack path.
-                // Agent already authenticated the server, wants to skip the server signature - which is great for server performance.
+                console.log('Agent already authenticated the server, wants to skip the server signature - which is great for server performance.');
             } else if (cmd == 5) {
-                // ServerID. Agent is telling us what serverid it expects. Useful if we have many server certificates.
+                console.log('ServerID. Agent is telling us what serverid it expects. Useful if we have many server certificates.');
                 if ((msg.substring(2, 34) == parent.swarmCertificateHash256) || (msg.substring(2, 50) == parent.swarmCertificateHash384)) { obj.useSwarmCert = true; }
             } else if (cmd == 30) {
-                // Agent Commit Date. This is future proofing. Can be used to change server behavior depending on the date range of the agent.
+                console.log('Agent Commit Date. This is future proofing. Can be used to change server behavior depending on the date range of the agent.');
                 try { obj.AgentCommitDate = Date.parse(msg.substring(2)) } catch (ex) { }
                 //console.log('Connected Agent Commit Date: ' + msg.substring(2) + ", " + Date.parse(msg.substring(2)));
             }
