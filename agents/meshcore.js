@@ -102,6 +102,7 @@ function getDomainInfo() {
             catch (x) {
             }
             if (hasrealm) {
+                console.log('getDomainInfo');
                 var child = require('child_process').execFile('/bin/sh', ['sh']);
                 child.stdout.str = ''; child.stdout.on('data', function (c) { this.str += c.toString(); });
                 child.stdin.write("realm list | grep domain-name: | tr '\\n' '`' | ");

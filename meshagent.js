@@ -668,6 +668,7 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
 
     // Once we get all the information about an agent, run this to hook everything up to the server
     function completeAgentConnection() {
+        parent.parent.debug('agent', 'completeAgentConnection: ' + obj.meshid + ', ' + obj.agentInfo);
         if ((obj.authenticated != 1) || (obj.meshid == null) || obj.pendingCompleteAgentConnection || (obj.agentInfo == null)) { return; }
         obj.pendingCompleteAgentConnection = true;
 
@@ -841,6 +842,8 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
     }
 
     function completeAgentConnection2() {
+        parent.parent.debug('agent', 'completeAgentConnection2');
+
         // See if this mesh exists, if it does not we may want to create it.
         var mesh = getMeshAutoCreate();
 
@@ -884,6 +887,8 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
     }
 
     function completeAgentConnection3(device, mesh) {
+        parent.parent.debug('agent', 'completeAgentConnection3' + device + ', ' + mesh);
+
         // Check if this agent is already connected
         const dupAgent = parent.wsagents[obj.dbNodeKey];
         parent.wsagents[obj.dbNodeKey] = obj;
@@ -1003,6 +1008,7 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
     }
 
     function agentCoreIsStable() {
+        parent.parent.debug('agent', 'agentCoreIsStable');
         parent.agentStats.coreIsStableCount++;
 
         // Check that the mesh exists
@@ -1120,6 +1126,7 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
 
     // Get the web certificate private key hash for the specified domain
     function getWebCertHash(domain) {
+        parent.parent.debug('agent', 'getWebCertHash');
         const hash = parent.webCertificateHashs[domain.id];
         if (hash != null) return hash;
         return parent.webCertificateHash;
@@ -1127,6 +1134,7 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
 
     // Get the web certificate hash for the specified domain
     function getWebCertFullHash(domain) {
+        parent.parent.debug('agent', 'getWebCertFullHash');
         const hash = parent.webCertificateFullHashs[domain.id];
         if (hash != null) return hash;
         return parent.webCertificateFullHash;
@@ -1134,6 +1142,8 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
 
     // Verify the agent signature
     function processAgentSignature(msg) {
+        parent.parent.debug('agent', 'processAgentSignature');
+
         if (isIgnoreHashCheck() == false) {
             var verified = false;
 
@@ -1194,6 +1204,7 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
 
     // Process incoming agent JSON data
     function processAgentData(msg) {
+        parent.parent.debug('agent', 'processAgentData');
         if (obj.agentInfo == null) return;
         var i, str = msg.toString('utf8'), command = null;
         if (str[0] == '{') {
@@ -1876,6 +1887,7 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
 
     // Change the current core information string and event it
     function ChangeAgentCoreInfo(command) {
+        parent.parent.debug('agent', "ChangeAgentCoreInfo");
         if ((obj.agentInfo == null) || (obj.agentInfo.capabilities & 0x40)) return;
         if ((command == null) || (command == null)) return; // Safety, should never happen.
 
@@ -1980,6 +1992,7 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
 
     // Change the current core information string and event it
     function ChangeAgentLocationInfo(command) {
+        parent.parent.debug('agent', "ChangeAgentLocationInfo");
         if (obj.agentInfo.capabilities & 0x40) return;
         if ((command == null) || (command == null)) { return; } // Safety, should never happen.
 
@@ -2028,6 +2041,7 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
 
     // Update the mesh agent tab in the database
     function ChangeAgentTag(tag) {
+        parent.parent.debug('agent', ("ChangeAgentTag");
         if ((obj.agentInfo == null) || (obj.agentInfo.capabilities & 0x40)) return;
         if ((tag != null) && (tag.length == 0)) { tag = null; }
 
@@ -2123,6 +2137,7 @@ module.exports.CreateMeshAgent = function (parent, db, ws, req, args, domain) {
     // Check if we need to update this agent, return true if agent binary update required.
     // Return 0 is no update needed, 1 update using native system, 2 update using meshcore system
     function compareAgentBinaryHash(agentExeInfo, agentHash) {
+        parent.parent.debug('agent', "compareAgentBinaryHash");
         // If this is a temporary agent and the server is set to not update temporary agents, don't update the agent.
         if ((obj.agentInfo.capabilities & 0x20) && (args.temporaryagentupdate === false)) return 0;
         // If we are testing the agent update system, always return true

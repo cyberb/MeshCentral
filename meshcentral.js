@@ -743,6 +743,7 @@ function CreateMeshCentralServer(config, args) {
     // Use NPM to get list of versions
     obj.getServerVersions = function (callback) {
         try {
+            console.log('Checking for new MeshCentral versions...');
             const child_process = require('child_process');
             const npmpath = ((typeof obj.args.npmpath == 'string') ? obj.args.npmpath : 'npm');
             const npmproxy = ((typeof obj.args.npmproxy == 'string') ? (' --proxy ' + obj.args.npmproxy) : '');
@@ -3530,6 +3531,7 @@ function CreateMeshCentralServer(config, args) {
         if (obj.config.settings && !obj.config.settings.externalsignjob) {
             return;
         }
+        console.log("External signing job called for file: " + signingArguments.out);
         obj.debug('main', "External signing job called for file: " + signingArguments.out);
         
         const { spawnSync } = require('child_process');
